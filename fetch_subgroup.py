@@ -83,7 +83,7 @@ class FetchSubGroup:
         self.grouptocheck=[]
     def GetNextWork(self):
         if len(self.grouptocheck)==0:
-            self.groupc.execute('select id,word from groupword where sub_group_checked=1')
+            self.groupc.execute('select id,word from groupword where sub_group_checked=0')
             for id,word in self.groupc:
                 self.grouptocheck.append((id,word))
             if len(self.grouptocheck)==0:
