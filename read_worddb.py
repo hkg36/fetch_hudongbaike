@@ -52,6 +52,8 @@ def ReadWordDb():
 
     def GetNextWork():
         pair=dbc.get(bsddb3.db.DB_NEXT)
+        if pair is None:
+            return None
         return (pair,)
     def ProcResult(res):
         word,groups=res

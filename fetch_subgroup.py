@@ -96,7 +96,7 @@ class FetchSubGroup:
         if word_parent and len(word_parent):
             self.groupc.execute('update groupword set parent_group=? where id=?',(word_parent,id))
         if len(new_fenlei):
-            self.groupc.execute('insert or ignore into groupword(word,parent) values(?,?)',[(word,id) for word in new_fenlei])
+            self.groupc.executemany('insert or ignore into groupword(word,parent) values(?,?)',[(word,id) for word in new_fenlei])
 
         self.groupc.execute('update groupword set sub_group_checked=1 where id=?',(id,))
         print "%d %s finished"%(id,groupword)
