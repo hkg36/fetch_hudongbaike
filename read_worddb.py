@@ -1,22 +1,18 @@
 #-*-coding:utf-8-*-
-import tools
-
 import sqlite3
-import bsddb3
-import gzip
-import html5lib
 import json
-import io
-import re
-import codecs
-import multiprocessing
-import time
 import gzip
-from xml.etree import cElementTree
 
-htmlparser=html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("etree",cElementTree),namespaceHTMLElements = False)
+import bsddb3
+import tools
+import env_data
+
+
 def ProcessWord(pair):
+    import html5lib,gzip,io,re
+    from xml.etree import cElementTree
     try:
+        htmlparser=html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("etree",cElementTree),namespaceHTMLElements = False)
         word=pair[0].decode('utf8')
         groups=[]
         doc=htmlparser.parse(gzip.GzipFile(fileobj=io.BytesIO(pair[1])))
@@ -74,6 +70,7 @@ def ReadWordDb():
 
     words={}
 
+    #tools.RunInDispy(ProcessWord,GetNextWork,ProcResult,scheduler_node=env_data.dispy_scheduler_node)
     tools.RunInMutiProcess(ProcessWord,GetNextWork,ProcResult)
 
     word_out=gzip.open('data/hudongbaike_groupofword.txt.gz','w')
