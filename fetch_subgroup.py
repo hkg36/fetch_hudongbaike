@@ -34,7 +34,7 @@ def ProcessWork(id,groupword):
     sub_class=doc.findall(".//div[@class='content bor-no']/div[@class='f_2']/div[@class='sort']/p")
     for index in xrange(len(sub_class_name)):
         g_name=sub_class_name[index].text.strip()
-        if g_name==u'父分类':
+        if g_name==u'上一级分类专题':
             sub_class2=sub_class[index]
             sub_a=sub_class2.findall('a')
             parent_groups=[]
@@ -51,7 +51,7 @@ def ProcessWork(id,groupword):
                     parent_groups.append(word)
             word_parent=','.join(parent_groups)
 
-        elif g_name==u'子分类':
+        elif g_name==u'下一级分类专题':
             sub_class2=sub_class[index]
             sub_a=sub_class2.findall('a')
             for node_a in sub_a:
@@ -83,7 +83,7 @@ class FetchSubGroup:
         self.grouptocheck=[]
     def GetNextWork(self):
         if len(self.grouptocheck)==0:
-            self.groupc.execute('select id,word from groupword where sub_group_checked=0')
+            self.groupc.execute('select id,word from groupword where sub_group_checked=0 limit 20')
             for id,word in self.groupc:
                 self.grouptocheck.append((id,word))
             if len(self.grouptocheck)==0:

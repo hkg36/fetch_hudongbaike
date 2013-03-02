@@ -57,28 +57,24 @@ def GetHttpByCurl(url):
 def RunInMutiProcess(MutiProcFunction,GetNewWork,ProcResult):
     pool=multiprocessing.Pool()
     results=[]
-    process_toend=False
-    while process_toend==False:
-        pair=GetNewWork()
-        if pair==None:
-            process_toend=True
-        else:
-            results.append(pool.apply_async(MutiProcFunction,pair))
-        if len(results)>100:
-            while True:
-                for res in results:
-                    if res.ready():
-                        results.remove(res)
-                        if res.successful() and ProcResult is not None:
-                            proc_result=res.get()
-                            ProcResult(proc_result)
 
-                if len(results)>50:
-                    time.sleep(0.1)
-                elif process_toend and len(results):
-                    time.sleep(0.1)
-                else:
-                    break
+    while True:
+        if len(results)>9:
+            time.sleep(1)
+        else:
+            pair=GetNewWork()
+            if pair:
+                results.append(pool.apply_async(MutiProcFunction,pair))
+            elif len(results)==0:
+                break
+            else:
+                time.sleep(0.1)
+        for res in results:
+            if res.ready():
+                results.remove(res)
+                if res.successful() and ProcResult is not None:
+                    proc_result=res.get()
+                    ProcResult(proc_result)
     pool.close()
     pool.join()
 def RunInDispy(MutiProcFunction,GetNewWork,ProcResult,scheduler_node='127.0.0.1'):

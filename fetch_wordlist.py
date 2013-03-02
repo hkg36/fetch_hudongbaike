@@ -29,7 +29,7 @@ def ProcessWork(id,groupword):
                         href=node_a.get('href')
                         if href==None:
                             continue
-                        found=re.search('http://www.baike.com/wiki/(?P<word>[^/]*)/?',href)
+                        found=re.search('http://www.baike.com/wiki/(?P<word>[^/\?\&]*)',href)
                         if found:
                             word=found.group('word')
                             word=urllib.unquote(word.encode('utf8'))

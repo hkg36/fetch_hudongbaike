@@ -18,13 +18,15 @@ def HTTPPost(url, data):
 def ReadFenleiAllWordPage(word):
     for i in xrange(5):
         try:
-            res=HTTPPost("http://fenlei.baike.com/categorySpecialTopicAction.do?action=showDocInfo",{'categoryName':'娱乐人物','pagePerNum':1000,'pageNow':1})
+            if isinstance(word,unicode):
+                word=word.encode('utf8')
+            res=HTTPPost("http://fenlei.baike.com/categorySpecialTopicAction.do?action=showDocInfo",{'categoryName':word,'pagePerNum':1000,'pageNow':1})
             list=res.get('list')
             wordlist=[]
             if list is not None:
                 for one in list:
                     url=one.get('title_url')
-                    res=re.match('^http://www.baike.com/wiki/(?P<word>.*)$',url)
+                    res=re.match('^http://www.baike.com/wiki/(?P<word>[^\?&\/]*)',url)
                     if res:
                         word=res.group('word')
                         word=urllib.unquote(word.encode('utf8'))
@@ -37,4 +39,6 @@ def ReadFenleiAllWordPage(word):
             continue
     return []
 if __name__ == '__main__':
-    ReadFenleiAllWordPage('娱乐人物')
+    wordlist=ReadFenleiAllWordPage('无线通信')
+    for word in wordlist:
+        print word
