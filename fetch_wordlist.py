@@ -42,6 +42,8 @@ def ProcessWork(id,groupword):
 class FetchWordList:
     def __init__(self):
         self.wordlist=[]
+        self.work_fetch=None
+        self.max_id=0
 
     def ProcessRes(self,res):
         id,groupword,allword=res
@@ -52,8 +54,9 @@ class FetchWordList:
         self.grouplist.commit()
     def GetNextWork(self):
         if len(self.wordlist)==0:
-            self.groupc.execute('select id,word from groupword where wordlist_checked=0')
+            self.groupc.execute('select id,word from groupword where wordlist_checked=0 and id>? order by id limit 20',(self.max_id))
             for id,word in self.groupc:
+                self.max_id=max(self.max_id,id)
                 self.wordlist.append((id,word))
             if len(self.wordlist)==0:
                 return None

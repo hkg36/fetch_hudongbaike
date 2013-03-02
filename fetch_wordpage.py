@@ -35,10 +35,13 @@ class FetchWordPage:
         self.sqlc=self.sqlcon.cursor()
 
         self.wordlist=[]
+
+        self.max_id=0
     def GetNextWork(self):
         if len(self.wordlist)==0:
-            self.sqlc.execute('select id,word from wordlist where info_read=0 and isred=0 limit 30')
+            self.sqlc.execute('select id,word from wordlist where info_read=0 and isred=0 and id>? order by id limit 20',(self.max_id,))
             for id,word in self.sqlc:
+                self.max_id=max(self.max_id,id)
                 self.wordlist.append((id,word))
             if len(self.wordlist)==0:
                 return None

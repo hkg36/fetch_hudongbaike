@@ -81,10 +81,13 @@ class FetchSubGroup:
         self.groupc=self.grouplist.cursor()
 
         self.grouptocheck=[]
+
+        self.max_id=0
     def GetNextWork(self):
         if len(self.grouptocheck)==0:
-            self.groupc.execute('select id,word from groupword where sub_group_checked=0 limit 20')
+            self.groupc.execute('select id,word from groupword where sub_group_checked=0 and id>? order by id limit 20',(self.max_id,))
             for id,word in self.groupc:
+                self.max_id=max(self.max_id,id)
                 self.grouptocheck.append((id,word))
             if len(self.grouptocheck)==0:
                 return None
