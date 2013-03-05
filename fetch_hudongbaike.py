@@ -17,7 +17,7 @@ def ResetDb():
     finally:
         sqlc.close()
         sqlcon.close()
-ResetDb()
+#ResetDb()
 all_root.fetchRoot()
 fetch_subgroup.FetchSubGroup().Run()
 fetch_wordlist.FetchWordList().Run()

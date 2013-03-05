@@ -20,7 +20,7 @@ def ProcessWork(id,groupword):
         href=onelink.get('href')
         if href is None:
             continue
-        res=re.match('^http://www.baike.com/wiki/(?P<word>.*)$',href)
+        res=re.match('^http://www.baike.com/wiki/(?P<word>[^\?&\/]*)',href)
         if res:
             word=res.group('word')
             word=urllib.unquote(word.encode('utf8'))
