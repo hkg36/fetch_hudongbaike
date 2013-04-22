@@ -44,8 +44,6 @@ def ReadWordDb():
     db.open('maindb.db','main',bsddb3.db.DB_BTREE,bsddb3.db.DB_CREATE, 0666)
     dbc=db.cursor()
 
-    sqlcon=sqlite3.connect('data/group.db')
-
     def GetNextWork():
         pair=dbc.get(bsddb3.db.DB_NEXT)
         if pair is None:
@@ -65,8 +63,6 @@ def ReadWordDb():
                 print word,json.dumps(groups,ensure_ascii=False)
             except Exception,e:
                 print word,'failed',e
-                sqlcon.execute('update wordlist set info_read=0 where word=?',(word,))
-
 
     words={}
 

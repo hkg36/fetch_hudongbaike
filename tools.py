@@ -4,8 +4,6 @@ from StringIO import StringIO
 import time
 from xml.etree import cElementTree as ET
 import multiprocessing
-import dispy
-import logging
 
 htmlparser = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("etree",ET),namespaceHTMLElements=False)
 def GetHtmlByCurl(url):
@@ -59,8 +57,8 @@ def RunInMutiProcess(MutiProcFunction,GetNewWork,ProcResult):
     results=[]
 
     while True:
-        if len(results)>9:
-            time.sleep(1)
+        if len(results)>20:
+            time.sleep(0.2)
         else:
             pair=GetNewWork()
             if pair:
@@ -77,33 +75,3 @@ def RunInMutiProcess(MutiProcFunction,GetNewWork,ProcResult):
                     ProcResult(proc_result)
     pool.close()
     pool.join()
-def RunInDispy(MutiProcFunction,GetNewWork,ProcResult,scheduler_node='127.0.0.1'):
-    cluster = dispy.SharedJobCluster(MutiProcFunction,scheduler_node=scheduler_node)
-    results=[]
-    process_toend=False
-    while True:
-        pair=GetNewWork()
-        if pair==None:
-            process_toend=True
-        else:
-            job = cluster.submit(pair)
-            results.append(job)
-        if len(results)>40:
-            while True:
-                for res in results:
-                    if res.status==res.Finished:
-                        results.remove(res)
-                        if res.result :#and ProcResult is not None:
-                            ProcResult(res.result)
-                    elif res.status==res.Terminated:
-                        results.remove(res)
-
-                if len(results)>20:
-                    time.sleep(0.1)
-                elif process_toend and len(results):
-                    time.sleep(0.1)
-                else:
-                    break
-    cluster.wait()
-    cluster.stats()
-    cluster.close()
