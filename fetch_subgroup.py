@@ -10,10 +10,8 @@ def ProcessWork(id,groupword):
     doc=tools.GetHtmlByCurl('http://fenlei.baike.com/%s/'%(urllib.quote(groupword.encode('utf8')),))
     new_words=[]
     new_fenlei=[]
-    word_parent=None
-    fun_res=(id,groupword,new_words,new_fenlei,word_parent)
     if doc==None:
-        return fun_res
+        return (id,groupword,new_words,new_fenlei,None)
 
     link_list=doc.findall(".//a")
     for onelink in link_list:
@@ -66,7 +64,7 @@ def ProcessWork(id,groupword):
                         word=word.decode('utf8')
                     new_fenlei.append(word)
                     print 'new group %s'%word
-    return fun_res
+    return (id,groupword,new_words,new_fenlei,word_parent)
 class FetchSubGroup:
     def __init__(self):
         self.grouplist=sqlite3.connect('data/group.db')
