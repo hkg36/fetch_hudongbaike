@@ -97,3 +97,6 @@ def RunInMutiProcess(MutiProcFunction,GetNewWork,ProcResult):
                     ProcResult(proc_result)
     pool.close()
     pool.join()
+if __name__ == '__main__':
+    res=GetMiniDomByCurl('http://www.baidu.com')
+    print res
