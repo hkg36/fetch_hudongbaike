@@ -15,7 +15,7 @@ Queue_Port=None
 Queue_Path='/spider'
 
 class DefaultHttpTask(QueueClient.Task):
-    htmlparser = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("lxml"),namespaceHTMLElements=False)
+    htmlparser = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("etree",ElementTree),namespaceHTMLElements=False)
     def __init__(self,url):
         QueueClient.Task.__init__(self)
         self.url=url
@@ -38,9 +38,9 @@ class NewsHttpTask(DefaultHttpTask):
         self.result_body=htmlfile
 
         try:
-            h1_node=htmlfile.xpath("//h1[@id='artibodyTitle']")[0]
+            h1_node=htmlfile.find(".//h1[@id='artibodyTitle']")
             title=h1_node.text.strip()
-            content_ps=htmlfile.xpath("//div[@id='artibody']/p")
+            content_ps=htmlfile.findall(".//div[@id='artibody']/p")
             bodys=[]
             for ps in content_ps:
                 for ele in ps.iter():
@@ -64,7 +64,7 @@ def FetchSinaNews():
     header,doc=client.WaitResult()
     if doc is None:
         return
-    alist=doc.xpath("//a")
+    alist=doc.findall(".//a")
     for a in alist:
         href=a.get('href')
         if not href:
@@ -87,4 +87,5 @@ if __name__ == '__main__':
             FetchSinaNews()
         except Exception,e:
             print e
+        print 'go sleep'
         time.sleep(30*60)

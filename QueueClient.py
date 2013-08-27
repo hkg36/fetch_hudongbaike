@@ -31,6 +31,7 @@ class QueueClient(object):
                                                                        heartbeat_interval=20))
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue=self.queue_name,durable=True)
+        self.task_count=0
         if self.needresult:
             result = self.channel.queue_declare(exclusive=True)
             self.callback_queue = result.method.queue
@@ -50,13 +51,13 @@ class QueueClient(object):
         except Exception,e:
             print e
     def ProcessResult(self,headers,body):
-        print body
+        pass
     def AddTask(self,header,body=''):
         properties=pika.BasicProperties(delivery_mode = 2,headers=header,reply_to = self.callback_queue)
         self.task_count+=1
         self.channel.basic_publish(exchange='',routing_key=self.queue_name,body=body,properties=properties)
     def WaitResult(self):
-        while self.task_count:
+        while self.task_count and time.time()-self.last_response_time<120:
             self.connection.process_data_events()
         return self.last_result_headers,self.last_result_body
     def Close(self):
@@ -144,13 +145,31 @@ class WeiboQueueClient(QueueClient):
             body = f.read()
         self.last_result_body=body
 if __name__ == '__main__':
+    import json
     Queue_User='spider'
     Queue_PassWord='spider'
     Queue_Server='124.207.209.57'
     Queue_Port=None
     Queue_Path='/spider'
 
-    """
+    client=QueueClient(Queue_Server,Queue_Port,'/tools','guest','guest','chinese_split')
+    file=open('testdata.txt')
+    testbody=file.read()
+    file.close()
+    stream=StringIO()
+    gs=gzip.GzipFile(fileobj=stream,mode='w')
+    gs.write(testbody)
+    gs.close()
+    client.AddTask({'zip':True,'encode':'utf8'},stream.getvalue())
+    head,body=client.WaitResult()
+    body=StringIO(body)
+    if head.get('zip'):
+        body=gzip.GzipFile(fileobj=body)
+    body=json.load(body)
+    print json.dumps(body,ensure_ascii=False)
+    client.Close()
+
+
     class HttpTask(Task):
         def StepFinish(self,taskqueueclient):
             if self.result_headers.get('zip'):
@@ -165,7 +184,7 @@ if __name__ == '__main__':
     client.AddTask(task)
     client.WaitResult()
     client.Close()
-    exit(0)"""
+
 
     client=HttpQueueClient(Queue_Server,Queue_Port,Queue_Path,Queue_User,Queue_PassWord,'net_request',True)
     client.AddTask({'url':'https://www.google.com.hk'})
@@ -176,8 +195,9 @@ if __name__ == '__main__':
     client.WaitResult()
     client.Close()
 
-    client=WeiboQueueClient(config.Queue_Server,config.Queue_Port,config.Queue_Path,config.Queue_User,config.Queue_PassWord,'weibo_request',True)
+    client=WeiboQueueClient(Queue_Server,Queue_Port,Queue_Path,Queue_User,Queue_PassWord,'weibo_request',True)
     client.SetWeiboConfig('2824743419','9c152c876ec980df305d54196539773f','2.00Iya8SCjn1KFDd12d85ec9cgps2qB')
     client.AddTask({'function':'statuses__user_timeline','params':{'uid':"1931386177"}})
-    client.WaitResult()
+    head,body=client.WaitResult()
+    print body
     client.Close()
